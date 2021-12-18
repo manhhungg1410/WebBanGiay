@@ -279,6 +279,7 @@
             type: "POST",
             data: id,
             success: function(response){
+                console.log(response);
                 $('.js-modal1').addClass('show-modal1');
                    console.log(response[0]);
                 $('.name').html(response[0].name);

@@ -37,6 +37,19 @@
     <link rel="stylesheet" type="text/css" href="{{asset('/frontend/css/main.css')}}">
     <!--===============================================================================================-->
     @yield('my_css')
+
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            /* display: none; <- Crashes Chrome on hover */
+            -webkit-appearance: none;
+            margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+        }
+
+        input[type=number] {
+            -moz-appearance:textfield; /* Firefox */
+        }
+    </style>
 </head>
 <body class="animsition">
 
@@ -153,6 +166,101 @@
 </script>
 <!--===============================================================================================-->
 <script src="/frontend/js/main.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $(document).on('keyup', '.qty', function() {
+                var that = $(this);
+                var qty = that.val();
+                var rowID = that.siblings('.rowID').val();
+                var price = that.siblings('.price').val();
+
+                if(qty!="" && qty>0) {
+                    $.ajax({
+                        url: '/update-cart',
+                        type: 'get',
+                        data: {qty: qty, rowID: rowID},
+                        success: function (response) {
+                            if (response.status == 200) {
+                                var sum = 0;
+                                $('.content-cart').each(function () {
+                                    var tien1sp = $(this).children('.price').val();
+                                    var sluong1sp = $(this).children('.qty').val();
+                                    if(sluong1sp=="" || sluong1sp==null){
+                                        sluong1sp = 0;
+                                    }
+                                    sum += (tien1sp * sluong1sp);
+                                });
+                                $('.header-cart-total').html('Total: ' + sum + '$');
+                            }
+                        },
+                        error: function (response) {
+                            console.log(response);
+                        }
+                    });
+                }
+            });
+            $(document).on('change', '.qty', function() {
+                var that = $(this);
+                var qty = that.val();
+                var rowID = that.siblings('.rowID').val();
+                if(qty=="" || qty<1){
+                    qty = 1;
+                    that.val(qty);
+                    $.ajax({
+                        url: '/update-cart',
+                        type: 'get',
+                        data: {qty: qty, rowID: rowID},
+                        success: function (response) {
+                            if (response.status == 200) {
+                                var sum = 0;
+                                $('.content-cart').each(function () {
+                                    var tien1sp = $(this).children('.price').val();
+                                    var sluong1sp = $(this).children('.qty').val();
+
+                                    sum += (tien1sp * sluong1sp);
+                                });
+                                $('.header-cart-total').html('Total: ' + sum + '$');
+                            }
+                        },
+                        error: function (response) {
+                            console.log(response);
+                        }
+                    });
+                }
+            });
+            $(document).on('click', '.header-cart-item-img', function() {
+                var delete_this = $(this);
+                    var id = $(this).siblings('.id_proc').val();
+                console.log(id);
+                    $.ajax({
+                        url: '/delete-one-cart',
+                        type: 'get',
+                        data: {id: id},
+                        success: function (response) {
+                            if (response.status == 200) {
+                                delete_this.parent('.header-cart-item').remove();
+                                var sum = 0;
+                                var count=0;
+                                $('.content-cart').each(function () {
+                                    count++;
+                                    var tien1sp = $(this).children('.price').val();
+                                    var sluong1sp = $(this).children('.qty').val();
+
+                                    sum += (tien1sp * sluong1sp);
+                                });
+                                $('.header-cart-total').html('Total: ' + sum + '$');
+                                $('.icon-header-noti').attr('data-notify',count)
+                            }
+                        },
+                        error: function (response) {
+                            console.log(response);
+                        }
+                    });
+            });
+        });
+    </script>
+
 
 </body>
 </html>

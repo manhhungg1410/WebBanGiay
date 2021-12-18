@@ -128,23 +128,6 @@
                 </a>
             </li>
 
-
-            <li class="treeview">
-                <a href="/backend/#">
-                    <i class="fa fa-th"></i>
-                    <span>Orders Management</span>
-                    <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li><a href=""><i class="fa fa-circle-o"></i> List </a></li>
-{{--                    <li><a href=""><i class="fa fa-circle-o"></i> Thêm </a></li>--}}
-                </ul>
-            </li>
-
-
-
                 <li class="{{request()->is('admin/contacts*')?'active':''}}">
                     <a href="{{route('admincontacts.index')}}">
                         <i class="fa fa-th"></i> <span>Contacts Management</span>
@@ -154,6 +137,17 @@
                     </a>
                 </li>
 
+            @endcan
+
+            @cannot('editor_poster')
+                <li class="{{request()->is('admin/orders*')?'active':''}}">
+                    <a href="{{route('adminorders.index')}}">
+                        <i class="fa fa-th"></i> <span>Orders Management</span>
+                        <span class="pull-right-container">
+{{--              <small class="label pull-right bg-green">new</small>--}}
+                 </span>
+                    </a>
+                </li>
             @endcan
 
             @can('admin_manager')

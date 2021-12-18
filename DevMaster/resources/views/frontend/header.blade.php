@@ -55,7 +55,7 @@
                 <!-- Icon header -->
                 <div class="wrap-icon-header flex-w flex-r-m h-full">
                     <div class="flex-c-m h-full p-r-25 bor6">
-                        <div class="icon-header-item cl0 hov-cl1 trans-04 p-lr-11 icon-header-noti js-show-cart" data-notify="2">
+                        <div class="icon-header-item cl0 hov-cl1 trans-04 p-lr-11 icon-header-noti js-show-cart" @if(isset($listCart)) data-notify = "{{count($listCart)}}" @endif>
                             <i class="zmdi zmdi-shopping-cart"></i>
                         </div>
                     </div>
@@ -80,7 +80,7 @@
         <!-- Icon header -->
         <div class="wrap-icon-header flex-w flex-r-m h-full m-r-15">
             <div class="flex-c-m h-full p-r-5">
-                <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header-noti js-show-cart" data-notify="2">
+                <div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header-noti js-show-cart" @if(isset($listCart)) data-notify = "{{count($listCart)}}" @endif>
                     <i class="zmdi zmdi-shopping-cart"></i>
                 </div>
             </div>
@@ -162,11 +162,6 @@
                     </a>
                 </li>
 
-                    <li class="p-b-13">
-                        <a href="#" class="stext-102 cl2 hov-cl1 trans-04">
-                            My Wishlist
-                        </a>
-                    </li>
                 @else
                     <li class="p-b-13">
                         <a href="{{route('view_login')}}" class="stext-102 cl2 hov-cl1 trans-04">
@@ -218,68 +213,61 @@
         </div>
 
         <div class="header-cart-content flex-w js-pscroll">
-            <ul class="header-cart-wrapitem w-full">
-                <li class="header-cart-item flex-w flex-t m-b-12">
+
+              <ul class="header-cart-wrapitem w-full content-main-cart">
+                  @if(isset($listCart))
+                      <?php
+                      $sum = 0;
+                      ?>
+                      @foreach($listCart as $items)
+                <li class="header-cart-item flex-w flex-t m-b-12" data-id="{{$items->id}}">
+                    <input type="hidden" value="{{$items->id}}" class="id_proc">
                     <div class="header-cart-item-img">
-                        <img src="/frontend/images/item-cart-01.jpg" alt="IMG">
+                        <img src="{{asset($items->options->image)}}" alt="IMG">
                     </div>
 
                     <div class="header-cart-item-txt p-t-8">
                         <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-                            White Shirt Pleat
+                            {{$items->name}}
                         </a>
 
-                        <span class="header-cart-item-info">
-								1 x $19.00
+                        <div class="content-cart d-flex justify-content-between">
+                            <input type="number" value="{{$items->qty}}" class="qty form-control" min="0" style="border: 1px solid #8F8F8F; width: 30%">
+                            <input type="hidden" value="{{$items->rowId }}" class="rowID">
+                            <input type="hidden" value="{{$items->price }}" class="price">
+
+                            <span class="header-cart-item-info" style="color: green;">
+							Price: 	{{$items->price}}$
+                            <?php
+                                $sum = $sum + ($items->price * $items->qty);
+                            ?>
 							</span>
+                        </div>
                     </div>
                 </li>
-
-                <li class="header-cart-item flex-w flex-t m-b-12">
-                    <div class="header-cart-item-img">
-                        <img src="/frontend/images/item-cart-02.jpg" alt="IMG">
-                    </div>
-
-                    <div class="header-cart-item-txt p-t-8">
-                        <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-                            Converse All Star
-                        </a>
-
-                        <span class="header-cart-item-info">
-								1 x $39.00
-							</span>
-                    </div>
-                </li>
-
-                <li class="header-cart-item flex-w flex-t m-b-12">
-                    <div class="header-cart-item-img">
-                        <img src="/frontend/images/item-cart-03.jpg" alt="IMG">
-                    </div>
-
-                    <div class="header-cart-item-txt p-t-8">
-                        <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-                            Nixon Porter Leather
-                        </a>
-
-                        <span class="header-cart-item-info">
-								1 x $17.00
-							</span>
-                    </div>
-                </li>
+                          @endforeach
+                  @endif
             </ul>
 
+
             <div class="w-full">
-                <div class="header-cart-total w-full p-tb-40">
-                    Total: $75.00
+                <div class="header-cart-total w-full p-tb-40" style="color: red;">
+                    Total:
+                    @if(isset($listCart))
+                        <?php
+                            echo $sum;
+                        ?>
+                    @else
+                        0
+                    @endif$
                 </div>
 
                 <div class="header-cart-buttons flex-w w-full">
-                    <a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
-                        View Cart
-                    </a>
-
-                    <a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+                    <a href="{{route('checkout')}}" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
                         Check Out
+                    </a>
+                    <a href="{{route('deleteCart')}}" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+                        Xóa giỏ hàng
                     </a>
                 </div>
             </div>
@@ -320,6 +308,9 @@
         <div class="wrap-slick1-dots p-lr-10"></div>
     </div>
 </section>
+
+
+
 
 
 

@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Banner;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Policy;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -14,12 +15,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Gloudemans\Shoppingcart\Facades\Cart;
+
 
 class ShopController extends Controller
 {
     public function __construct()
     {
-
         $lsCategories = Category::where('is_active','=','1')
             ->get();
         $lsBanner = Banner::where('is_active','=','1')
@@ -37,6 +39,9 @@ class ShopController extends Controller
 
     // Hàm trả về trang chủ
     public function index(){
+
+        $listCart = Cart::content();
+
         $categories = Category::where('is_active','=','1')
             ->where('parent_id','=','0')
             ->orderby('position','asc')->take(3)->get();
@@ -64,7 +69,8 @@ class ShopController extends Controller
         return view('frontend/content_pages/home')->with(['categories'=>$categories,
                                                             'articles'=>$articles,
                                                             'list'=>$list,
-                                                            'lsBrands'=>$lsBrands]);
+                                                            'lsBrands'=>$lsBrands,
+                                                            'listCart'=>$listCart]);
     }
 
     // Show thông tin sản phẩm qua modal
@@ -76,6 +82,7 @@ class ShopController extends Controller
 
     // Hàm xử lý show thông tin chi tiết sản phẩm
     public function products($slug_cate,$slug_pro){
+        $listCart = Cart::content();
         $product = Product::where('slug',$slug_pro)->first();
         $id = $product->id;
         // Viewed Products
@@ -117,12 +124,15 @@ class ShopController extends Controller
             ->orderby('position','asc')
             ->get();
 
-        return view('frontend/content_pages/product_details')->with(['product' => $product,'product_img'=>$product_img,'lsProduct'=>$lsProduct,'lsViewed'=>$lsViewed]);
+        return view('frontend/content_pages/product_details')->with([
+            'product' => $product,'product_img'=>$product_img,'lsProduct'=>$lsProduct,'lsViewed'=>$lsViewed,'listCart'=>$listCart
+        ]);
     }
 
 
     // Hàm show danh sách sản phẩm theo danh mục sản phẩm
     public function details_product($slug){
+        $listCart = Cart::content();
         $categories = Category::where('slug','=',$slug)->first();
 
             if($categories==null){
@@ -144,28 +154,31 @@ class ShopController extends Controller
             }
 
            // dd($lsProduct);
-        return view('frontend/content_pages/products')->with(['lsProduct'=>$lsProduct,'categories'=>$categories]);
+        return view('frontend/content_pages/products')->with(['lsProduct'=>$lsProduct,'categories'=>$categories,'listCart'=>$listCart]);
 
 
     }
 
     // Show information policies
     public function policies($id){
+        $listCart = Cart::content();
         $policy = Policy::find($id);
-        return view('frontend.content_pages.policies')->with(['policy'=>$policy]);
+        return view('frontend.content_pages.policies')->with(['policy'=>$policy,'listCart'=>$listCart]);
     }
 
     // Search sản phẩm
     public function searchProducts(Request $request){
+        $listCart = Cart::content();
         $name = $request->search;
         //dd($name);
         $lsProducts = Product::where('name','like','%'.$name.'%')->paginate(20);
-        return view('frontend.content_pages.search_products')->with(['lsProducts'=>$lsProducts,'name'=>$name]);
+        return view('frontend.content_pages.search_products')->with(['lsProducts'=>$lsProducts,'name'=>$name,'listCart'=>$listCart]);
     }
 
     // Show checkout page
     public function checkout(){
-        return view('frontend/content_pages/checkout');
+        $listCart = Cart::content();
+        return view('frontend/content_pages/checkout')->with(['listCart'=>$listCart]);
     }
 
     // Show cart page
@@ -175,25 +188,28 @@ class ShopController extends Controller
 
     // Contact page
     public function contact(Request $request){
+        $listCart = Cart::content();
         if($request->email==null){
-            return view('frontend/content_pages/contact');
+            return view('frontend/content_pages/contact')->with(['listCart'=>$listCart]);
         }
         else{
             $email = $request->email;
-            return view('frontend/content_pages/contact')->with(['email'=>$email]);
+            return view('frontend/content_pages/contact')->with(['email'=>$email,'listCart'=>$listCart]);
         }
     }
 
     //about us
     public function about_us(){
+        $listCart = Cart::content();
         $userAdmin = User::where('email','=','hunq1410@gmail.com')
             ->take(1)->get();
         $lsUser = User::where('role_id','=',3)->take(1)->get();
-        return view('frontend/content_pages/about_us')->with(['userAdmin'=>$userAdmin,'lsUser'=>$lsUser]);
+        return view('frontend/content_pages/about_us')->with(['userAdmin'=>$userAdmin,'lsUser'=>$lsUser,'listCart'=>$listCart]);
     }
 
     // Show blogs page
     public function blogs(Request $request){
+        $listCart = Cart::content();
         $lsProduct = Product::where('is_active','=','1')
             ->orderby('price','desc')->take(5)->get();
         $categories = Category::where('parent_id',0)->where('is_active',1)->get();
@@ -210,16 +226,17 @@ class ShopController extends Controller
                 ->where('title','like','%'.$title.'%')
                 ->latest()->paginate(5);
         }
-        return view('frontend/content_pages/blogs')->with(['lsArticle'=>$lsArticle,'categories'=>$categories,'lsProduct'=>$lsProduct,'title'=>$title]);
+        return view('frontend/content_pages/blogs')->with(['lsArticle'=>$lsArticle,'categories'=>$categories,'lsProduct'=>$lsProduct,'title'=>$title,'listCart'=>$listCart]);
     }
 
     // SHow chi tiết bài viết
     public function find_blog($slug){
+        $listCart = Cart::content();
             $article = Article::where('slug','=',$slug)->first();
             $lsArticles = Article::where('is_active','=','1')
             ->latest()->take(3)->get();
         $categories = Category::where('parent_id',0)->where('is_active',1)->get();
-            return view('frontend.content_pages.details_blog')->with(['article'=>$article,'lsArticle'=>$lsArticles,'categories'=>$categories]);
+            return view('frontend.content_pages.details_blog')->with(['article'=>$article,'lsArticle'=>$lsArticles,'categories'=>$categories,'listCart'=>$listCart]);
     }
 
     public function not_found(){
@@ -256,9 +273,10 @@ class ShopController extends Controller
     // thông tin khách
     public function information_guest(){
         // TT người dùng
+        $listCart = Cart::content();
         $id = Auth::user()->id;
         $user = User::find($id);
-        return view('frontend.content_pages.information_guest')->with(['user'=>$user]);
+        return view('frontend.content_pages.information_guest')->with(['user'=>$user,'listCart'=>$listCart]);
     }
 
     // Đổi mật khẩu

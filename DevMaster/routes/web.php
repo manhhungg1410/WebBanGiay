@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductImageController;
+use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -140,6 +141,16 @@ Route::group(['prefix'=>'admin','as'=>'admin','middleware'=>'checkLogin'],functi
      */
 
     /*
+    *   Orders
+    */
+    Route::resource('/orders',\App\Http\Controllers\OrderController::class)->middleware(['can:not_poster']);
+    Route::get('/confirm-orders',[\App\Http\Controllers\OrderController::class,'confirm'])->name('confirmOrders')->middleware(['can:admin_manager']);
+    Route::get('/details-orders',[\App\Http\Controllers\OrderController::class,'details'])->name('detailOrders')->middleware(['can:admin_manager']);
+    /*
+     * End Orders
+     */
+
+    /*
      * Contact
      */
     Route::resource('/contacts',\App\Http\Controllers\ContactController::class)->middleware(['can:not_poster']);
@@ -180,6 +191,14 @@ Route::get('/checkout',[\App\Http\Controllers\ShopController::class,'checkout'])
 Route::get('/cart',[\App\Http\Controllers\ShopController::class,'cart'])->name('cart');
 Route::get('/policies/{id}',[\App\Http\Controllers\ShopController::class,'policies'])->name('policies');
 Route::get('/login_guest',[\App\Http\Controllers\ShopController::class,'view_login'])->name('view_login');
+/*
+ *  Cart
+ */
+Route::get('/add-cart',[CartController::class,'addCart'])->name('add_cart');
+Route::get('/update-cart',[CartController::class,'updateCart']);
+Route::get('/delete-cart',[CartController::class,'deleteCart'])->name('deleteCart');
+Route::get('/delete-one-cart',[CartController::class,'deleteOneProducts'])->name('delete-one-cart');
+Route::get('send_confirmOrder',[\App\Http\Controllers\SendEmailController::class,'send_confirmOrder']);
 
 //For Guest
 Route::group(['middleware'=>'checkLoginGuest'],function() { // tạo group với url admin/...

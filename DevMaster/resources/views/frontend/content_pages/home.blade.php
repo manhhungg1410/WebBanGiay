@@ -189,8 +189,8 @@
 {{--                                    <div class="icon-header-item cl0 hov-cl1 trans-04 p-lr-11 js-show-cart" style="color: darkgreen;">--}}
 {{--                                        <i class="zmdi zmdi-shopping-cart"></i>--}}
 {{--                                    </div>--}}
-                                    <img class="icon-heart1 dis-block trans-04" src="/frontend/images/icons/icon-heart-01.png" alt="ICON">
-                                    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/frontend/images/icons/icon-heart-02.png" alt="ICON">
+{{--                                    <img class="icon-heart1 dis-block trans-04" src="/frontend/images/icons/icon-heart-01.png" alt="ICON">--}}
+{{--                                    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/frontend/images/icons/icon-heart-02.png" alt="ICON">--}}
                                 </a>
                             </div>
                         </div>

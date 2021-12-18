@@ -48,6 +48,10 @@
 
                 <div class="col-md-6 col-lg-5 p-b-30">
                     <div class="p-r-50 p-t-5 p-lr-0-lg">
+                        <input type="hidden" value="{{$product->id}}" id="idProduct">
+                        <input type="hidden" value="{{$product->name}}" id="nameProduct">
+                        <input type="hidden" value="{{$product->sale}}" id="priceProduct">
+                        <input type="hidden" value="{{$product->image}}" id="imageProduct">
                         <h4 class="mtext-105 cl2 js-name-detail p-b-14">
                             {{$product->name}}
                         </h4>
@@ -82,41 +86,13 @@
 
                         <!--  -->
                         <div class="p-t-33">
-                            <div class="flex-w flex-r-m p-b-10">
-                                <div class="size-203 flex-c-m respon6">
-                                    Size
-                                </div>
-
-                                <div class="size-204 respon6-next">
-                                    <div class="rs1-select2 bor8 bg0">
-                                        <select class="js-select2" name="time">
-                                            <option>Choose an option</option>
-                                            <option>Size S</option>
-                                            <option>Size M</option>
-                                            <option>Size L</option>
-                                            <option>Size XL</option>
-                                        </select>
-                                        <div class="dropDownSelect2"></div>
-                                    </div>
-                                </div>
-                            </div>
 
 
                             <div class="flex-w flex-r-m p-b-10">
                                 <div class="size-204 flex-w flex-m respon6-next">
-                                    <div class="wrap-num-product flex-w m-r-20 m-tb-10">
-                                        <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-                                            <i class="fs-16 zmdi zmdi-minus"></i>
-                                        </div>
 
-                                        <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1">
 
-                                        <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-                                            <i class="fs-16 zmdi zmdi-plus"></i>
-                                        </div>
-                                    </div>
-
-                                    <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
+                                    <button id="addCart" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
                                         Add to cart
                                     </button>
                                 </div>
@@ -219,12 +195,12 @@
                                             </span>
                                     </div>
 
-                                    <div class="block2-txt-child2 flex-r p-t-3">
-                                        <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                                            <img class="icon-heart1 dis-block trans-04" src="/frontend/images/icons/icon-heart-01.png" alt="ICON">
-                                            <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/frontend/images/icons/icon-heart-02.png" alt="ICON">
-                                        </a>
-                                    </div>
+{{--                                    <div class="block2-txt-child2 flex-r p-t-3">--}}
+{{--                                        <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">--}}
+{{--                                            <img class="icon-heart1 dis-block trans-04" src="/frontend/images/icons/icon-heart-01.png" alt="ICON">--}}
+{{--                                            <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/frontend/images/icons/icon-heart-02.png" alt="ICON">--}}
+{{--                                        </a>--}}
+{{--                                    </div>--}}
                                 </div>
                             </div>
                         </div>
@@ -270,12 +246,12 @@
                                     </span>
                                 </div>
 
-                                <div class="block2-txt-child2 flex-r p-t-3">
-                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                                        <img class="icon-heart1 dis-block trans-04" src="/frontend/images/icons/icon-heart-01.png" alt="ICON">
-                                        <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/frontend/images/icons/icon-heart-02.png" alt="ICON">
-                                    </a>
-                                </div>
+{{--                                <div class="block2-txt-child2 flex-r p-t-3">--}}
+{{--                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">--}}
+{{--                                        <img class="icon-heart1 dis-block trans-04" src="/frontend/images/icons/icon-heart-01.png" alt="ICON">--}}
+{{--                                        <img class="icon-heart2 dis-block trans-04 ab-t-l" src="/frontend/images/icons/icon-heart-02.png" alt="ICON">--}}
+{{--                                    </a>--}}
+{{--                                </div>--}}
                             </div>
                         </div>
                     </div>
@@ -354,4 +330,87 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('my_js')
+    <script>
+            $(document).ready(function(){
+                $('#addCart').click(function(){
+                    var id = $('#idProduct').val();
+                    var name = $('#nameProduct').val();
+                    var price = $('#priceProduct').val();
+                    var image = $('#imageProduct').val();
+
+                    console.log(id,name,price,image);
+                    $.ajax({
+                        url : '/add-cart',
+                        type: 'get',
+                        data: {id:id,name:name,price:price,image:image},
+                        success:function(response){
+                            if(response.status==200){
+                                var check = true;
+                                $('.header-cart-item').each(function(){
+                                    var temp_id = $(this).children('.id_proc').val();
+                                    if(temp_id == id){
+                                        check = false;
+                                    }
+                                });
+
+                                if(check==true){
+                                    var rowID = response.rowID;
+                                    console.log(rowID);
+                                    var str = `
+                        <li class="header-cart-item flex-w flex-t m-b-12" data-id="${id}">
+                            <input type="hidden" value="${id}" class="id_proc">
+                            <div class="header-cart-item-img">
+
+                                <img src="/${image}" alt="IMG">
+
+                            </div>
+
+                            <div class="header-cart-item-txt p-t-8">
+                                <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
+                                                ${name}
+                                            </a>
+
+                                            <div class="content-cart d-flex justify-content-between">
+                                                <input type="number" value="1" class="qty form-control" min="0" style="border: 1px solid #8F8F8F; width: 30%">
+                                    <input type="hidden" value="${rowID}" class="rowID">
+                                    <input type="hidden" value="${price}" class="price">
+
+                                    <span class="header-cart-item-info" style="color: green;">
+                                    Price: ${price}$
+
+                                            </span>
+                                        </div>
+                                    </div>
+                                </li>
+                           `;
+                                    $('.content-main-cart').append(str);
+                                }else{
+                                   var qty_old =  $(`[data-id="${id}"]`).children('.header-cart-item-txt').children('.content-cart').children('.qty').val();
+                                   qty_old = parseInt(qty_old);
+                                    $(`[data-id="${id}"]`).children('.header-cart-item-txt').children('.content-cart').children('.qty').val(qty_old+1);
+                                }
+
+                                var sum = 0;
+                                var count=0;
+                                $('.content-cart').each(function () {
+                                    count++;
+                                    var tien1sp = $(this).children('.price').val();
+                                    var sluong1sp = $(this).children('.qty').val();
+
+                                    sum += (tien1sp * sluong1sp);
+                                });
+                                $('.header-cart-total').html('Total: ' + sum + '$');
+                                $('.icon-header-noti').attr('data-notify',count)
+                            }
+                        },
+                        error: function(response){
+                            console.log(response);
+                        }
+                    });
+                });
+            });
+    </script>
 @endsection
